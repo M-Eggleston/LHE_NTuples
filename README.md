@@ -11,7 +11,7 @@ Event information includes the following values (as detailed in the original [pa
 * Event scale
 * EM coupling &alpha;<sub>em</sub>
 * Strong coupling &alpha;<sub>s</sub>
-* Particle identity from the [Particle Data Group](pdg.lbl.gov/2007/reviews/montecarlopp.pdf)
+* Particle identity from the Particle Data Group (pdg.lbl.gov/2007/reviews/montecarlopp.pdf)
 * Particle status
 * Mother particles
 * Color(s)
