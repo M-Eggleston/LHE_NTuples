@@ -9,8 +9,8 @@ Event information includes the following values (as detailed in the original [pa
 * Number of particles
 * Event weight
 * Event scale
-* EM coupling U+03b1<sub>em</sub>
-* Strong coupling U+03b1<sub>s</sub>
+* EM coupling &alpha;<sub>em</sub>
+* Strong coupling &alpha;<sub>s</sub>
 * Particle identity from the [Particle Data Group](pdg.lbl.gov/2007/reviews/montecarlopp.pdf)
 * Particle status
 * Mother particles
