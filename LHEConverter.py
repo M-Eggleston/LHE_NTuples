@@ -2,7 +2,6 @@
 #file LHE_NTuples.py
 
 import sys,argparse
-import functions.py
 from ROOT import std,TTree,TFile
 from array import array
 
