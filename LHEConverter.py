@@ -24,12 +24,12 @@ def getMetaInfo(line):
     global alpha_em
     global alpha_s
 
-    num_particles = line[0]
+    num_particles = int(line[0])
     data = []
     #Iterate over the line and skip over empty characters that will show up if multiple spaces exist between data in the LHE file
     for x in range(0,len(line)):
         if line[x] != '':
-            data.append(line[x])
+            data.append(float(line[x]))
     #Check that the list has the right number of data points, else the wrong line was parsed
     if len(data) == 6:
         #One more variable exists between the number of particles and event weight, not sure what it is, omitting from ntuple
@@ -38,7 +38,7 @@ def getMetaInfo(line):
         alpha_em = data[4]
         alpha_s = data[5]
     else:
-        print '{} data points were found, when 6 were expected! Skipping to next event.'.format(len(data))
+        print ('{} data points were found, when 6 were expected! Skipping to next event.'.format(len(data)))
     #TODO: actually force the parser to skip to next event
 
 def main():
@@ -110,15 +110,20 @@ def main():
     #----------------------------------------------------------
 
     #Search for event tags in the file
-    num_events = 0
     input_file = open(args.in_file,'rt')
+    num_events = 0
+    for line in input_file:
+        if (line.find("<event>") != -1): num_events += 1
+    print('There are {} events in this file.'.format(num_events))
+    l_num_events = 0
     is_event = False
     is_meta = False
+    num_skipped_particles = 0
     for line in input_file:
         if (line.find("<event>") != -1): #String.find() returns the index at which the argument is found, or -1 if not found
             is_event = True
             is_meta = True
-            num_events += 1
+            l_num_events += 1
             continue
             #getMetaInfo(line.next().strip().split(' '))
         if (line.find("</event>") != -1):
@@ -138,15 +143,21 @@ def main():
             data = []
             for n in range(0,len(eventInfo)):
                 if eventInfo[n] != '':
-                    data.append(eventInfo[n])
-            if len(data) != 13: print('Mismatched number of data elements!')
+                    data.append(float(eventInfo[n]))
+            if len(data) != 13:
+                num_skipped_particles += 1
+                if (num_events > 100) and (l_num_events%100 == 0):
+                    print('Event #{} has mismatched number of data elements. Printing data:\n'.format(l_num_events))
+                    print(data)
+                else:
+                    print('Mismatched number of data elements!')
             else:
-                m_pdgid.append(data[0])
-                m_status.append(data[1])
-                m_mother1.append(data[2])
-                m_mother2.append(data[3])
-                m_color1.append(data[4])
-                m_color2.append(data[5])
+                m_pdgid.append(int(data[0]))
+                m_status.append(int(data[1]))
+                m_mother1.append(int(data[2]))
+                m_mother2.append(int(data[3]))
+                m_color1.append(int(data[4]))
+                m_color2.append(int(data[5]))
                 m_px.append(data[6])
                 m_py.append(data[7])
                 m_pz.append(data[8])
