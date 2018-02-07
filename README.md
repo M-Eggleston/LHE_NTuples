@@ -24,6 +24,7 @@ Note that not all of these values will contain information from the event genera
 ## Output File Format
 The output file will be a standard .root file, containing one tree named `mytree`. Each of the above data are stored as individual branches inside the tree.
 Branch names and data types are:
+
  Branch Name | Data Type
  :---- | :----:
  numParticles | `int`
