@@ -48,6 +48,8 @@ Branch names and data types are:
 
 Any single vector index value corresponds to one particle in the event, so that you may iterate over all data vectors at the same time in order to collect relevant particle data. That is, for any index `n`, the values `pdgID[n]` and `px[n]` will give information for the same particle.
 
+**CAUTION!** Using the same output file location more than once will overwrite the existing file. Consider this your only warning!
+
 ## Example Use
 Command line execution:
 
