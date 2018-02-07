@@ -116,6 +116,7 @@ def main():
         for line in input_file:
             if (line.find("<event>") != -1): num_events += 1
         print('There are {} events in this file.'.format(num_events))
+        if num_events < 100: print("Because of small number of events, errors will be printed to terminal")
         input_file.seek(0) #Reset the file iterator to beginning of file
         #TODO: replace this restart to start at the first event in the next iteration
         l_num_events = 0
@@ -123,6 +124,7 @@ def main():
         is_event = False
         is_meta = False
         num_skipped_particles = 0
+        print("Begin looping over events!")
         for line in input_file:
             if (line.find("<event>") != -1): #String.find() returns the index at which the argument is found, or -1 if not found
                 is_event = True
@@ -148,7 +150,7 @@ def main():
                 m_tau.clear()
                 m_spin.clear()
                 l_particle_num = 0
-                if (num_events > 100) and (l_num_events%1000 == 0): print('Finished event number {}. Filled tree.'.format(l_num_events))
+                #if (num_events > 100) and (l_num_events%1000 == 0): print('Finished event number {}. Filled tree.'.format(l_num_events))
             if is_event and is_meta:
                 getMetaInfo(line.strip().split(' '))
                 m_num_particles[0] = num_particles
@@ -157,7 +159,7 @@ def main():
                 m_alpha_em[0] = alpha_em
                 m_alpha_s[0] = alpha_s
                 is_meta = False
-                if (num_events > 100) and (l_num_events%1000 == 0): print('Collected event number {} meta data.'.format(l_num_events))
+                #if (num_events > 100) and (l_num_events%1000 == 0): print('Collected event number {} meta data.'.format(l_num_events))
                 continue
             elif is_event and not is_meta:
                 l_particle_num += 1
@@ -170,10 +172,10 @@ def main():
                     num_skipped_particles += 1
                     if (num_events > 100) and (l_num_events%1000 == 0):
                         print('Event #{}, particle #{} has mismatched number of data elements! Printing Data:'.format(l_num_events,l_particle_num))
-                        print(data)
+                        #print(data)
                     elif (num_events < 100):
                         print('Mismatched number of data elements! Printing data:\n')
-                        print(data)
+                        #print(data)
                 else:
                     m_pdgid.push_back(int(data[0]))
                     m_status.push_back(int(data[1]))
@@ -193,6 +195,7 @@ def main():
     #input_file.close()
         out_file.Write()
         out_file.Close()
+        print("Finished looping over events! All data written to {}.".format(out_f_name))
 
 if __name__=="__main__":
     main()
