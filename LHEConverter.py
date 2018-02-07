@@ -67,19 +67,20 @@ def main():
     m_alpha_em = array('f',[0.0])
     m_alpha_s = array('f',[0.0])
 
-    m_pdgid = array('i',[])
-    m_status = array('i',[])
-    m_mother1 = array('i',[])
-    m_mother2 = array('i',[])
-    m_color1 = array('i',[])
-    m_color2 = array('i',[])
-    m_px = array('f',[])
-    m_py = array('f',[])
-    m_pz = array('f',[])
-    m_e = array('f',[])
-    m_m = array('f',[])
-    m_tau = array('f',[])
-    m_spin = array('f',[])
+    #m_pdgid = array('i',[])
+    m_pdgid = std.vector('int')()
+    m_status = std.vector('int')()
+    m_mother1 = std.vector('int')()
+    m_mother2 = std.vector('int')()
+    m_color1 = std.vector('int')()
+    m_color2 = std.vector('int')()
+    m_px = std.vector('float')()
+    m_py = std.vector('float')()
+    m_pz = std.vector('float')()
+    m_e = std.vector('float')()
+    m_m = std.vector('float')()
+    m_tau = std.vector('float')()
+    m_spin = std.vector('float')()
 
     #---------------------------------------------------------
     # Set up TTree and branches for storing info
@@ -92,83 +93,106 @@ def main():
     my_tree.Branch('eventScale',m_event_scale,'eventScale/F')
     my_tree.Branch('alphaEM',m_alpha_em,'alphaEM/F')
     my_tree.Branch('alphaS',m_alpha_s,'alphaS/F')
-    my_tree.Branch('pdgID',m_pdgid,'pdgID/I')
-    my_tree.Branch('mother1',m_mother1,'mother1/I')
-    my_tree.Branch('mother2',m_mother2,'mother2/I')
-    my_tree.Branch('color1',m_color1,'color1/I')
-    my_tree.Branch('color2',m_color2,'color2/I')
-    my_tree.Branch('px',m_px,'px/F')
-    my_tree.Branch('py',m_py,'py/F')
-    my_tree.Branch('pz',m_pz,'pz/F')
-    my_tree.Branch('E',m_e,'E/F')
-    my_tree.Branch('Mass',m_m,'Mass/F')
-    my_tree.Branch('Tau',m_tau,'Tau/F')
-    my_tree.Branch('Spin',m_spin,'Spin/F')
+    my_tree.Branch('pdgID',m_pdgid)
+    my_tree.Branch('mother1',m_mother1)
+    my_tree.Branch('mother2',m_mother2)
+    my_tree.Branch('color1',m_color1)
+    my_tree.Branch('color2',m_color2)
+    my_tree.Branch('px',m_px)
+    my_tree.Branch('py',m_py)
+    my_tree.Branch('pz',m_pz)
+    my_tree.Branch('E',m_e)
+    my_tree.Branch('Mass',m_m)
+    my_tree.Branch('Tau',m_tau)
+    my_tree.Branch('Spin',m_spin)
 
     #----------------------------------------------------------
     # Begin parsing for info
     #----------------------------------------------------------
 
     #Search for event tags in the file
-    input_file = open(args.in_file,'rt')
-    num_events = 0
-    for line in input_file:
-        if (line.find("<event>") != -1): num_events += 1
-    print('There are {} events in this file.'.format(num_events))
-    l_num_events = 0
-    is_event = False
-    is_meta = False
-    num_skipped_particles = 0
-    for line in input_file:
-        if (line.find("<event>") != -1): #String.find() returns the index at which the argument is found, or -1 if not found
-            is_event = True
-            is_meta = True
-            l_num_events += 1
-            continue
-            #getMetaInfo(line.next().strip().split(' '))
-        if (line.find("</event>") != -1):
-            is_event = False
-            is_meta = False #Just in case this never got flipped back somehow
-            my_tree.Fill() #Should fill the tree at the end of each event structure!
-        if is_event and is_meta:
-            getMetaInfo(line.strip().split(' '))
-            m_num_particles[0] = num_particles
-            m_event_weight[0] = event_weight
-            m_event_scale[0] = event_scale
-            m_alpha_em[0] = alpha_em
-            m_alpha_s[0] = alpha_s
-            is_meta = False
-        if is_event and not is_meta:
-            eventInfo = line.strip().split(' ')
-            data = []
-            for n in range(0,len(eventInfo)):
-                if eventInfo[n] != '':
-                    data.append(float(eventInfo[n]))
-            if len(data) != 13:
-                num_skipped_particles += 1
-                if (num_events > 100) and (l_num_events%100 == 0):
-                    print('Event #{} has mismatched number of data elements. Printing data:\n'.format(l_num_events))
-                    print(data)
+    with open(args.in_file,'rt') as input_file:
+        num_events = 0
+        for line in input_file:
+            if (line.find("<event>") != -1): num_events += 1
+        print('There are {} events in this file.'.format(num_events))
+        input_file.seek(0) #Reset the file iterator to beginning of file
+        #TODO: replace this restart to start at the first event in the next iteration
+        l_num_events = 0
+        l_particle_num = 0
+        is_event = False
+        is_meta = False
+        num_skipped_particles = 0
+        for line in input_file:
+            if (line.find("<event>") != -1): #String.find() returns the index at which the argument is found, or -1 if not found
+                is_event = True
+                is_meta = True
+                l_num_events += 1
+                continue
+            if (line.find("</event>") != -1):
+                is_event = False
+                is_meta = False #Just in case this never got flipped back somehow
+                my_tree.Fill() #Should fill the tree at the end of each event structure!
+                #Clear vectors of event info
+                m_pdgid.clear()
+                m_status.clear()
+                m_mother1.clear()
+                m_mother2.clear()
+                m_color1.clear()
+                m_color2.clear()
+                m_px.clear()
+                m_py.clear()
+                m_pz.clear()
+                m_e.clear()
+                m_m.clear()
+                m_tau.clear()
+                m_spin.clear()
+                l_particle_num = 0
+                if (num_events > 100) and (l_num_events%1000 == 0): print('Finished event number {}. Filled tree.'.format(l_num_events))
+            if is_event and is_meta:
+                getMetaInfo(line.strip().split(' '))
+                m_num_particles[0] = num_particles
+                m_event_weight[0] = event_weight
+                m_event_scale[0] = event_scale
+                m_alpha_em[0] = alpha_em
+                m_alpha_s[0] = alpha_s
+                is_meta = False
+                if (num_events > 100) and (l_num_events%1000 == 0): print('Collected event number {} meta data.'.format(l_num_events))
+                continue
+            elif is_event and not is_meta:
+                l_particle_num += 1
+                eventInfo = line.strip().split(' ')
+                data = []
+                for n in range(0,len(eventInfo)):
+                    if eventInfo[n] != '':
+                        data.append(float(eventInfo[n]))
+                if len(data) != 13:
+                    num_skipped_particles += 1
+                    if (num_events > 100) and (l_num_events%1000 == 0):
+                        print('Event #{}, particle #{} has mismatched number of data elements! Printing Data:'.format(l_num_events,l_particle_num))
+                        print(data)
+                    elif (num_events < 100):
+                        print('Mismatched number of data elements! Printing data:\n')
+                        print(data)
                 else:
-                    print('Mismatched number of data elements!')
-            else:
-                m_pdgid.append(int(data[0]))
-                m_status.append(int(data[1]))
-                m_mother1.append(int(data[2]))
-                m_mother2.append(int(data[3]))
-                m_color1.append(int(data[4]))
-                m_color2.append(int(data[5]))
-                m_px.append(data[6])
-                m_py.append(data[7])
-                m_pz.append(data[8])
-                m_e.append(data[9])
-                m_m.append(data[10])
-                m_tau.append(data[11])
-                m_spin.append(data[12])
+                    m_pdgid.push_back(int(data[0]))
+                    m_status.push_back(int(data[1]))
+                    m_mother1.push_back(int(data[2]))
+                    m_mother2.push_back(int(data[3]))
+                    m_color1.push_back(int(data[4]))
+                    m_color2.push_back(int(data[5]))
+                    m_px.push_back(data[6])
+                    m_py.push_back(data[7])
+                    m_pz.push_back(data[8])
+                    m_e.push_back(data[9])
+                    m_m.push_back(data[10])
+                    m_tau.push_back(data[11])
+                    m_spin.push_back(data[12])
+        print('{} particles were skipped for bad formatting.'.format(num_skipped_particles))
 
-    input_file.close()
-    out_file.Write()
-    out_file.Close()
+    #input_file.close()
+        out_file.Write()
+        out_file.Close()
 
 if __name__=="__main__":
     main()
