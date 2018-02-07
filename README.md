@@ -19,6 +19,34 @@ Event information includes the following values (as detailed in the original [pa
 * Proper lifetime
 * Spin
 
+Note that not all of these values will contain information from the event generator.
+
+## Output File Format
+The output file will be a standard .root file, containing one tree named `mytree`. Each of the above data are stored as individual branches inside the tree.
+Branch names and data types are:
+Branch Name | Data Type
+------------|-----------
+numParticles | `int`
+eventWeight | `float`
+eventScale | `float`
+alphaEM | `float`
+alphaS | `float`
+pdgID | `std::vector<int>`
+pdgStatus | `std::vector<int>`
+mother1 | `std::vector<int>`
+mother2 | `std::vector<int>`
+color1 | `std::vector<int>`
+color2 | `std::vector<int>`
+px | `std::vector<float>`
+py | `std::vector<float>`
+pz | `std::vector<float>`
+E | `std::vector<float>`
+Mass | `std::vector<float>`
+Tau | `std::vector<float>`
+Spin | `std::vector<float>`
+
+Any single vector index value corresponds to one particle in the event, so that you may iterate over all data vectors at the same time in order to collect relevant particle data. That is, for any index `n`, the values `pdgID[n]` and `px[n]` will give information for the same particle.
+
 ## Example Use
 Command line execution:
 

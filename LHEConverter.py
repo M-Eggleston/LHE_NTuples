@@ -94,6 +94,7 @@ def main():
     my_tree.Branch('alphaEM',m_alpha_em,'alphaEM/F')
     my_tree.Branch('alphaS',m_alpha_s,'alphaS/F')
     my_tree.Branch('pdgID',m_pdgid)
+    my_tree.Branch('pdgStatus',m_status)
     my_tree.Branch('mother1',m_mother1)
     my_tree.Branch('mother2',m_mother2)
     my_tree.Branch('color1',m_color1)
