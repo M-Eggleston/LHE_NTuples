@@ -22,6 +22,6 @@ Event information includes the following values (as detailed in the original [pa
 ## Example Use
 Command line execution:
 
-```python3 ~/Path/to/LHEConverter.py -i ~/Path/to/generated_events.lhe -o output_file_name.root```
+```python3 ~/Path/to/LHEConverter.py -i ~/Path/to/generated/events.lhe -o output_file_name.root```
 
-if no output file name is given, the default will be `generated_events`.root, where `generated_events` is the name of the input file.
+if no output file name is given, the default will be `<events>.root`, where `<events>` is the name of the input file.
