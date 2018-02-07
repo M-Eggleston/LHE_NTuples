@@ -18,3 +18,10 @@ Event information includes the following values (as detailed in the original [pa
 * 4-Momentum and mass with the four-vector given as `[Px,Py,Pz,E]`
 * Proper lifetime
 * Spin
+
+## Example Use
+Command line execution:
+
+```python3 ~/Path/to/LHEConverter.py -i ~/Path/to/generated_events.lhe -o output_file_name.root```
+
+if no output file name is given, the default will be `generated_events`.root, where `generated_events` is the name of the input file.
