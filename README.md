@@ -50,6 +50,8 @@ Any single vector index value corresponds to one particle in the event, so that 
 
 **CAUTION!** Using the same output file location more than once will overwrite the existing file. Consider this your only warning!
 
+**Requires ROOT library!**
+
 ## Example Use
 Command line execution:
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 #file LHE_NTuples.py
 
 import sys,argparse
