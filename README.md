@@ -55,6 +55,6 @@ Any single vector index value corresponds to one particle in the event, so that 
 ## Example Use
 Command line execution:
 
-```python3 ~/Path/to/LHEConverter.py -i ~/Path/to/generated/events.lhe -o output_file_name.root```
+```python ~/Path/to/LHEConverter.py -i ~/Path/to/generated/events.lhe -o output_file_name.root```
 
 if no output file name is given, the default will be `<events>.root`, where `<events>` is the name of the input file.
