@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-## file LHE_NTuples.py
+## file LHEConverter.py
 # Converts LHE files to a flat NTuple in a .root file
 # Author Michael Eggleston
 
@@ -13,22 +13,9 @@ parser = argparse.ArgumentParser(description="Convert LHE files into ROOT NTuple
 parser.add_argument('-i','--input-file',help='name of LHE file to convert',dest='in_file')
 parser.add_argument('-o','--output-file',help='name of .root file in which event data will be stored',dest='out_name')
 
-#Initialize event meta variables
-#num_particles = 0
-#event_weight = 0.0
-#event_scale = 0.0
-#alpha_em = 0.0
-#alpha_s = 0.0
 #All branch variables for the ttree will have m_ attached as a prefix
 
 def getMetaInfo(meta_evt, line):
-    #global num_particles
-    #global event_weight
-    #global event_scale
-    #global alpha_em
-    #global alpha_s
-
-    #num_particles = int(line[0])
     data = []
     #Iterate over the line and skip over empty characters that will show up if multiple spaces exist between data in the LHE file
     for x in range(0,len(line)):
@@ -39,10 +26,6 @@ def getMetaInfo(meta_evt, line):
         #One more variable exists between the number of particles and event weight, not sure what it is, omitting from ntuple
         data.pop(1)
         meta_evt.setValues(data)
-        #event_weight = data[2]
-        #event_scale = data[3]
-        #alpha_em = data[4]
-        #alpha_s = data[5]
     else:
         print ('{} data points were found, when 6 were expected! Skipping to next event.'.format(len(data)))
     #TODO: actually force the parser to skip to next event
@@ -58,11 +41,6 @@ def main():
     if not args.out_name:
         out_f_name = args.in_file.split('.lhe')[0] + '.root'
 
-    #global num_particles
-    #global event_weight
-    #global event_scale
-    #global alpha_em
-    #global alpha_s
     m_meta_event = Event.MetaEvent(0,0,0,0,0)
 
     #---------------------------------------------------------
@@ -74,7 +52,6 @@ def main():
     m_alpha_em = array('f',[0.0])
     m_alpha_s = array('f',[0.0])
 
-    #m_pdgid = array('i',[])
     m_pdgid = std.vector('int')()
     m_status = std.vector('int')()
     m_mother1 = std.vector('int')()
@@ -158,7 +135,6 @@ def main():
                 m_tau.clear()
                 m_spin.clear()
                 l_particle_num = 0
-                #if (num_events > 100) and (l_num_events%1000 == 0): print('Finished event number {}. Filled tree.'.format(l_num_events))
             if is_event and is_meta:
                 getMetaInfo(m_meta_event,line.strip().split(' '))
                 m_num_particles[0] = m_meta_event.getNumParticles()#num_particles
@@ -167,7 +143,6 @@ def main():
                 m_alpha_em[0] = m_meta_event.getAlphaEM()#alpha_em
                 m_alpha_s[0] = m_meta_event.getAlphaS()#alpha_s
                 is_meta = False
-                #if (num_events > 100) and (l_num_events%1000 == 0): print('Collected event number {} meta data.'.format(l_num_events))
                 continue
             elif is_event and not is_meta:
                 l_particle_num += 1
@@ -180,10 +155,8 @@ def main():
                     num_skipped_particles += 1
                     if (num_events > 100) and (l_num_events%1000 == 0):
                         print('Event #{}, particle #{} has mismatched number of data elements! Printing Data:'.format(l_num_events,l_particle_num))
-                        #print(data)
                     elif (num_events < 100):
                         print('Mismatched number of data elements! Printing data:\n')
-                        #print(data)
                 else:
                     m_pdgid.push_back(int(data[0]))
                     m_status.push_back(int(data[1]))

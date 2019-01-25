@@ -22,6 +22,14 @@ class MetaEvent:
         self.m_alpha_em = a_em
         self.m_alpha_s = a_s
 
+    #Don't forget we used data.pop(1) before passing to this method
+    def setValues(self,val_list):
+        self.m_num_particles = int(val_list[0])
+        self.m_event_weight = val_list[1]
+        self.m_event_scale = val_list[2]
+        self.m_alpha_em = val_list[3]
+        self.m_alpha_s = val_list[4]
+
     # returns a list of the instance member variables in the same order as when created
     def getValues(self):
         return [self.m_num_particles,self.m_event_weight,self.m_event_scale,self.m_alpha_em,self.m_alpha_s]
