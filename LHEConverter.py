@@ -1,30 +1,34 @@
 #!/usr/bin/env python
-#file LHE_NTuples.py
 
-import sys,argparse
+## file LHE_NTuples.py
+# Converts LHE files to a flat NTuple in a .root file
+# Author Michael Eggleston
+
+import sys, argparse
 from ROOT import std,TTree,TFile
 from array import array
+import Event
 
 parser = argparse.ArgumentParser(description="Convert LHE files into ROOT NTuples.")
 parser.add_argument('-i','--input-file',help='name of LHE file to convert',dest='in_file')
 parser.add_argument('-o','--output-file',help='name of .root file in which event data will be stored',dest='out_name')
 
 #Initialize event meta variables
-num_particles = 0
-event_weight = 0.0
-event_scale = 0.0
-alpha_em = 0.0
-alpha_s = 0.0
+#num_particles = 0
+#event_weight = 0.0
+#event_scale = 0.0
+#alpha_em = 0.0
+#alpha_s = 0.0
 #All branch variables for the ttree will have m_ attached as a prefix
 
-def getMetaInfo(line):
-    global num_particles
-    global event_weight
-    global event_scale
-    global alpha_em
-    global alpha_s
+def getMetaInfo(meta_evt, line):
+    #global num_particles
+    #global event_weight
+    #global event_scale
+    #global alpha_em
+    #global alpha_s
 
-    num_particles = int(line[0])
+    #num_particles = int(line[0])
     data = []
     #Iterate over the line and skip over empty characters that will show up if multiple spaces exist between data in the LHE file
     for x in range(0,len(line)):
@@ -33,10 +37,12 @@ def getMetaInfo(line):
     #Check that the list has the right number of data points, else the wrong line was parsed
     if len(data) == 6:
         #One more variable exists between the number of particles and event weight, not sure what it is, omitting from ntuple
-        event_weight = data[2]
-        event_scale = data[3]
-        alpha_em = data[4]
-        alpha_s = data[5]
+        data.pop(1)
+        meta_evt.setValues(data)
+        #event_weight = data[2]
+        #event_scale = data[3]
+        #alpha_em = data[4]
+        #alpha_s = data[5]
     else:
         print ('{} data points were found, when 6 were expected! Skipping to next event.'.format(len(data)))
     #TODO: actually force the parser to skip to next event
@@ -52,11 +58,12 @@ def main():
     if not args.out_name:
         out_f_name = args.in_file.split('.lhe')[0] + '.root'
 
-    global num_particles
-    global event_weight
-    global event_scale
-    global alpha_em
-    global alpha_s
+    #global num_particles
+    #global event_weight
+    #global event_scale
+    #global alpha_em
+    #global alpha_s
+    m_meta_event = Event.MetaEvent(0,0,0,0,0)
 
     #---------------------------------------------------------
     # Set up arrays for holding event info to be written to branches
@@ -153,12 +160,12 @@ def main():
                 l_particle_num = 0
                 #if (num_events > 100) and (l_num_events%1000 == 0): print('Finished event number {}. Filled tree.'.format(l_num_events))
             if is_event and is_meta:
-                getMetaInfo(line.strip().split(' '))
-                m_num_particles[0] = num_particles
-                m_event_weight[0] = event_weight
-                m_event_scale[0] = event_scale
-                m_alpha_em[0] = alpha_em
-                m_alpha_s[0] = alpha_s
+                getMetaInfo(m_meta_event,line.strip().split(' '))
+                m_num_particles[0] = m_meta_event.getNumParticles()#num_particles
+                m_event_weight[0] = m_meta_event.getEventWeight()#event_weight
+                m_event_scale[0] = m_meta_event.getEventScale()#event_scale
+                m_alpha_em[0] = m_meta_event.getAlphaEM()#alpha_em
+                m_alpha_s[0] = m_meta_event.getAlphaS()#alpha_s
                 is_meta = False
                 #if (num_events > 100) and (l_num_events%1000 == 0): print('Collected event number {} meta data.'.format(l_num_events))
                 continue
@@ -193,7 +200,6 @@ def main():
                     m_spin.push_back(data[12])
         print('{} particles were skipped for bad formatting.'.format(num_skipped_particles))
 
-    #input_file.close()
         out_file.Write()
         out_file.Close()
         print("Finished looping over events! All data written to {}.".format(out_f_name))
