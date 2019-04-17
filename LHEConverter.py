@@ -145,7 +145,7 @@ def main():
                 is_meta = False
                 continue
             elif is_event and not is_meta:
-                if (line.find("<") != -1):
+                if (line.find("<") != -1) or (line.find("#") != -1):
                     continue
 
                 l_particle_num += 1
