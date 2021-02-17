@@ -12,6 +12,7 @@ import Event
 parser = argparse.ArgumentParser(description="Convert LHE files into ROOT NTuples.")
 parser.add_argument('-i','--input-file',help='name of LHE file to convert',dest='in_file')
 parser.add_argument('-o','--output-file',help='name of .root file in which event data will be stored',dest='out_name')
+parser.add_argument('-w','--weight',help='MadGraph allows for inclusion of weights with a given name. Set name of weight to access here',dest='weight_name')
 
 #All branch variables for the ttree will have m_ attached as a prefix
 
@@ -41,6 +42,14 @@ def main():
     if not args.out_name:
         out_f_name = args.in_file.split('.lhe')[0] + '.root'
 
+    include_weight = False
+    m_weight_name = 'weight_'
+    if not args.weight_name:
+        print('No weight name specified, none will be included in the output')
+    else:
+        include_weight = True
+        m_weight_name = m_weight_name + args.weight_name
+
     m_meta_event = Event.MetaEvent(0,0,0,0,0)
 
     #---------------------------------------------------------
@@ -51,6 +60,8 @@ def main():
     m_event_scale = array('f',[0.0])
     m_alpha_em = array('f',[0.0])
     m_alpha_s = array('f',[0.0])
+
+    m_weight = array('f',[0.0])
 
     m_pdgid = std.vector('int')()
     m_status = std.vector('int')()
@@ -77,6 +88,9 @@ def main():
     my_tree.Branch('eventScale',m_event_scale,'eventScale/F')
     my_tree.Branch('alphaEM',m_alpha_em,'alphaEM/F')
     my_tree.Branch('alphaS',m_alpha_s,'alphaS/F')
+    if include_weight:
+        my_tree.Branch(m_weight_name,m_weight,'m_weight_name'+'/F')
+
     my_tree.Branch('pdgID',m_pdgid)
     my_tree.Branch('pdgStatus',m_status)
     my_tree.Branch('mother1',m_mother1)
@@ -108,17 +122,30 @@ def main():
         l_particle_num = 0
         is_event = False
         is_meta = False
+        is_sum_weight = False
         num_skipped_particles = 0
         print("Begin looping over events!")
         for line in input_file:
+            # If the file contains a reweighting tag, the sum of weights will be included before any events, in the file metadata
+            # So find all sum of weights and add to an output histogram 
+            #TODO: find all sum of weights and write to a histogram in output file
+            # for now I'll just look this value up manually
+            #if (line.find("<initrwgt>") != -1):
+            #    is_sum_weight = True
+            #    continue
+            #if (line.find("</initrwgt>") != -1):
+            #    is_sum_weight = False
+            #    continue
             if (line.find("<event>") != -1): #String.find() returns the index at which the argument is found, or -1 if not found
                 is_event = True
                 is_meta = True
+                is_sum_weight = False
                 l_num_events += 1
                 continue
             if (line.find("</event>") != -1):
                 is_event = False
                 is_meta = False #Just in case this never got flipped back somehow
+                is_sum_weight = False
                 my_tree.Fill() #Should fill the tree at the end of each event structure!
                 #Clear vectors of event info
                 m_pdgid.clear()
@@ -135,6 +162,14 @@ def main():
                 m_tau.clear()
                 m_spin.clear()
                 l_particle_num = 0
+            # These weight tags are found inside the event structure, so because of the checks for unknown tags
+            # skips lines with any tag bracket below, we can safely handle this case here, and still ignore other unknowns later
+            if (line.find("<wgt id=") != -1):
+                l_name = line.strip().split('\'')[1]
+                if l_name == args.weight_name:
+                    wgt = float(line.strip().split(' ')[2])
+                    m_weight[0] = wgt
+                continue
             if is_event and is_meta:
                 getMetaInfo(m_meta_event,line.strip().split(' '))
                 m_num_particles[0] = m_meta_event.getNumParticles()#num_particles
